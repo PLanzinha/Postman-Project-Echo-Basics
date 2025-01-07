@@ -1,0 +1,434 @@
+{
+    "info": {
+        "_postman_id": "c5fbb328-9001-4b00-9a16-53a17e6b1225",
+        "name": "Postman Echo",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "description": "Project 1: Mastering Postman Echo Basics & Variables. Uses https://postman-echo.com. Enhanced with more examples.",
+        "_exporter_id": "45251555"
+    },
+    "item": [
+        {
+            "name": "GET Echo with Query Params",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "console.log(\"--- GET Echo with Query Params --- \");",
+                            "console.log(\"Request URL:\", pm.request.url.toString());",
+                            "console.log(\"Response Status:\", pm.response.code);",
+                            "console.log(\"Full Response Headers:\", pm.response.headers.all());",
+                            "",
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response args.foo1 is 'bar1'\", function () {",
+                            "    const responseJson = pm.response.json();",
+                            "    console.log(\"Response Args:\", responseJson.args);",
+                            "    pm.expect(responseJson.args.foo1).to.eql(\"bar1\");",
+                            "});",
+                            "",
+                            "pm.test(\"Response args.foo2 is 'bar2'\", function () {",
+                            "    const responseJson = pm.response.json();",
+                            "    pm.expect(responseJson.args.foo2).to.eql(\"bar2\");",
+                            "});",
+                            "",
+                            "pm.test(\"Response header 'x-forwarded-proto' is 'https'\", function () {",
+                            "    const responseJson = pm.response.json();",
+                            "    pm.expect(responseJson.headers[\"x-forwarded-proto\"]).to.eql(\"https\");",
+                            "});",
+                            "",
+                            "pm.test(\"Content-Length header is present\", () => {",
+                            "    pm.response.to.have.header(\"Content-Length\");",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/get?foo1=bar1&foo2=bar2",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "get"
+                    ],
+                    "query": [
+                        {
+                            "key": "foo1",
+                            "value": "bar1"
+                        },
+                        {
+                            "key": "foo2",
+                            "value": "bar2"
+                        }
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "POST Echo with JSON Body",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response json.name is 'Postman User'\", function () {",
+                            "    const responseJson = pm.response.json();",
+                            "    pm.expect(responseJson.json.name).to.eql(\"Postman User\");",
+                            "});",
+                            "",
+                            "pm.test(\"Response json.purpose is 'Learning'\", function () {",
+                            "    const responseJson = pm.response.json();",
+                            "    pm.expect(responseJson.json.purpose).to.eql(\"Learning\");",
+                            "});",
+                            "",
+                            "pm.test(\"Response header 'content-type' includes 'application/json'\", function () {",
+                            "    pm.expect(pm.response.headers.get(\"content-type\")).to.include(\"application/json\");",
+                            "});",
+                            "",
+                            "// Set a collection variable from the response",
+                            "const responseJsonForVar = pm.response.json();",
+                            "if (responseJsonForVar.json && responseJsonForVar.json.name) {",
+                            "    pm.collectionVariables.set(\"postedName\", responseJsonForVar.json.name);",
+                            "    console.log(\"Set collection variable 'postedName' to: \" + pm.collectionVariables.get(\"postedName\"));",
+                            "} else {",
+                            "    console.error(\"Could not find 'name' in response.json.json to set collection variable.\");",
+                            "}"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"name\": \"Postman User\",\n    \"purpose\": \"Learning\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/post",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "post"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "POST Echo with x-www-form-urlencoded",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "const responseJson = pm.response.json();",
+                            "pm.test(\"Response form.paramA is 'value A'\", function () {",
+                            "    pm.expect(responseJson.form.paramA).to.eql(\"value A\");",
+                            "});",
+                            "",
+                            "pm.test(\"Response form.paramB is 'value B space'\", function () {",
+                            "    pm.expect(responseJson.form.paramB).to.eql(\"value B space\");",
+                            "});",
+                            "",
+                            "pm.test(\"Request Content-Type header was 'application/x-www-form-urlencoded'\", function () {",
+                            "    // Echo reflects the headers it received in its response body",
+                            "    pm.expect(responseJson.headers['content-type']).to.include('application/x-www-form-urlencoded');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "urlencoded",
+                    "urlencoded": [
+                        {
+                            "key": "paramA",
+                            "value": "value A",
+                            "type": "text"
+                        },
+                        {
+                            "key": "paramB",
+                            "value": "value B space",
+                            "type": "text"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/post",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "post"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "PUT Echo with Form Data",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "const responseJson = pm.response.json();",
+                            "pm.test(\"Response form.field1 is 'value1_updated'\", function () {",
+                            "    pm.expect(responseJson.form.field1).to.eql(\"value1_updated\");",
+                            "});",
+                            "",
+                            "pm.test(\"Response form.field2 is 'value2_updated'\", function () {",
+                            "    pm.expect(responseJson.form.field2).to.eql(\"value2_updated\");",
+                            "});",
+                            "",
+                            "// Set an environment variable from response",
+                            "if(responseJson.headers && responseJson.headers['x-request-id']) {",
+                            "   pm.environment.set(\"lastRequestId\", responseJson.headers['x-request-id']);",
+                            "   console.log(\"Set environment variable 'lastRequestId' to: \" + responseJson.headers['x-request-id']);",
+                            "} else {",
+                            "   // Fallback if x-request-id is not present, use a timestamp for uniqueness",
+                            "   const fallbackId = \"mockId-\" + new Date().getTime();",
+                            "   pm.environment.set(\"lastRequestId\", fallbackId);",
+                            "   console.log(\"x-request-id not found, set 'lastRequestId' to fallback: \" + fallbackId);",
+                            "}"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "field1",
+                            "value": "value1_updated",
+                            "type": "text"
+                        },
+                        {
+                            "key": "field2",
+                            "value": "value2_updated",
+                            "type": "text"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/put",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "put"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "GET Echo with Environment Variable Header",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "const responseJson = pm.response.json();",
+                            "const expectedRequestId = pm.environment.get(\"lastRequestId\");",
+                            "",
+                            "pm.test(\"Reflected 'x-last-request' header matches environment variable\", function() {",
+                            "    pm.expect(responseJson.headers[\"x-last-request\"]).to.eql(expectedRequestId);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "X-Last-Request",
+                        "value": "{{lastRequestId}}",
+                        "type": "text",
+                        "description": "Uses environment variable set by previous PUT request"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/headers",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "headers"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "DELETE Echo Example",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"id\": \"testDelete123\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/delete",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "delete"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "GET Chained Name Check",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response args.name_check is 'Postman User'\", function () {",
+                            "    const responseJson = pm.response.json();",
+                            "    pm.expect(responseJson.args.name_check).to.eql(\"Postman User\");",
+                            "});",
+                            "",
+                            "pm.test(\"Response args.name_check matches collection variable 'postedName'\", function () {",
+                            "    const responseJson = pm.response.json();",
+                            "    pm.expect(responseJson.args.name_check).to.eql(pm.collectionVariables.get(\"postedName\"));",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/get?name_check={{postedName}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "get"
+                    ],
+                    "query": [
+                        {
+                            "key": "name_check",
+                            "value": "{{postedName}}"
+                        }
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "GET Non-Existent Endpoint (404 Test)",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 404 for non-existent endpoint\", function () {",
+                            "    pm.response.to.have.status(404);",
+                            "});",
+                            "",
+                            "// Echo's 404 page returns HTML. We can check if the body contains certain text.",
+                            "pm.test(\"Response body contains 'Cannot GET' for 404\", function() {",
+                            "    pm.expect(pm.response.text()).to.include(\"Cannot GET /thisshouldnotexist\");",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/thisshouldnotexist",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "thisshouldnotexist"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ],
+    "variable": [
+        {
+            "key": "postedName",
+            "value": "",
+            "type": "string",
+            "description": "Set by 'POST Echo with JSON Body' request for chaining example."
+        }
+    ]
+}
